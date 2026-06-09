@@ -22,6 +22,7 @@
         <router-link to="/catalog">Каталог</router-link>
         <router-link to="/cart" class="header__cart">
           🛒 Корзина
+          <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
         </router-link>
         <router-link to="/login">Войти</router-link>
       </nav>
@@ -31,12 +32,17 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'AppHeader',
   data() {
     return {
       searchQuery: ''
     }
+  },
+  computed: {
+    ...mapGetters(['cartCount'])
   }
 }
 </script>
@@ -116,6 +122,8 @@ export default {
 }
 
 .header__cart {
+  display: flex;
+  align-items: center;
   background-color: var(--color-primary);
   color: var(--color-white) !important;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -125,5 +133,19 @@ export default {
 
 .header__cart:hover {
   background-color: var(--color-primary-hover) !important;
+}
+
+.cart-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-left: var(--spacing-xs);
 }
 </style>
