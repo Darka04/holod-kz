@@ -24,7 +24,15 @@
           🛒 Корзина
           <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
         </router-link>
-        <router-link to="/login">Войти</router-link>
+
+        <!-- Если пользователь НЕ залогинен -->
+        <router-link v-if="!isLoggedIn" to="/login">Войти</router-link>
+
+        <!-- Если пользователь залогинен -->
+        <div v-else class="header__user">
+          <span class="header__username">👤 {{ currentUser.name }}</span>
+          <button class="header__logout" @click="handleLogout">Выйти</button>
+        </div>
       </nav>
 
     </div>
@@ -32,7 +40,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'AppHeader',
@@ -42,7 +50,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['cartCount'])
+    ...mapGetters(['cartCount']),
+    ...mapGetters('auth', ['isLoggedIn', 'currentUser'])
+  },
+  methods: {
+    ...mapActions('auth', ['logout']),
+    async handleLogout() {
+      await this.logout()
+      this.$router.push('/')
+    }
   }
 }
 </script>
@@ -147,5 +163,35 @@ export default {
   height: 20px;
   border-radius: 50%;
   margin-left: var(--spacing-xs);
+}
+
+/* Блок авторизованного пользователя */
+.header__user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.header__username {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.header__logout {
+  background: transparent;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: 5px 12px;
+  border-radius: var(--border-radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.header__logout:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 </style>

@@ -1,4 +1,7 @@
+// src/store/index.js
+
 import { createStore } from 'vuex'
+import auth from './modules/auth'
 
 export default createStore({
   state: {
@@ -94,33 +97,32 @@ export default createStore({
     searchQuery: state => state.searchQuery
   },
 
- mutations: {
-  ADD_TO_CART(state, product) {
-    const existing = state.cart.find(item => item.id === product.id)
-    if (existing) {
-      existing.quantity++
-    } else {
-      state.cart.push({ ...product, quantity: 1 })
-    }
-  },
-  REMOVE_FROM_CART(state, productId) {
-    state.cart = state.cart.filter(item => item.id !== productId)
-  },
-  // 
-  DECREASE_QUANTITY(state, productId) {
-    const item = state.cart.find(item => item.id === productId)
-    if (item) {
-      if (item.quantity > 1) {
-        item.quantity--
+  mutations: {
+    ADD_TO_CART(state, product) {
+      const existing = state.cart.find(item => item.id === product.id)
+      if (existing) {
+        existing.quantity++
       } else {
-        state.cart = state.cart.filter(i => i.id !== productId)
+        state.cart.push({ ...product, quantity: 1 })
       }
+    },
+    REMOVE_FROM_CART(state, productId) {
+      state.cart = state.cart.filter(item => item.id !== productId)
+    },
+    DECREASE_QUANTITY(state, productId) {
+      const item = state.cart.find(item => item.id === productId)
+      if (item) {
+        if (item.quantity > 1) {
+          item.quantity--
+        } else {
+          state.cart = state.cart.filter(i => i.id !== productId)
+        }
+      }
+    },
+    SET_SEARCH_QUERY(state, query) {
+      state.searchQuery = query
     }
   },
-  SET_SEARCH_QUERY(state, query) {
-    state.searchQuery = query
-  }
-},
 
   actions: {
     addToCart({ commit }, product) {
@@ -132,5 +134,9 @@ export default createStore({
     setSearchQuery({ commit }, query) {
       commit('SET_SEARCH_QUERY', query)
     }
+  },
+
+  modules: {
+    auth
   }
 })
