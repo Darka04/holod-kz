@@ -13,8 +13,9 @@
           type="text"
           placeholder="Поиск холодильного оборудования..."
           v-model="searchQuery"
+          @keyup.enter="handleSearch"
         />
-        <button>🔍</button>
+        <button @click="handleSearch">🔍</button>
       </div>
 
       <!-- Навигация -->
@@ -25,10 +26,8 @@
           <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
         </router-link>
 
-        <!-- Если пользователь НЕ залогинен -->
         <router-link v-if="!isLoggedIn" to="/login">Войти</router-link>
 
-        <!-- Если пользователь залогинен -->
         <div v-else class="header__user">
           <span class="header__username">👤 {{ currentUser.name }}</span>
           <button class="header__logout" @click="handleLogout">Выйти</button>
@@ -54,7 +53,14 @@ export default {
     ...mapGetters('auth', ['isLoggedIn', 'currentUser'])
   },
   methods: {
+    ...mapActions(['setSearchQuery']),
     ...mapActions('auth', ['logout']),
+    handleSearch() {
+      this.setSearchQuery(this.searchQuery)
+      if (this.$route.name !== 'catalog') {
+        this.$router.push('/catalog')
+      }
+    },
     async handleLogout() {
       await this.logout()
       this.$router.push('/')
@@ -165,7 +171,6 @@ export default {
   margin-left: var(--spacing-xs);
 }
 
-/* Блок авторизованного пользователя */
 .header__user {
   display: flex;
   align-items: center;

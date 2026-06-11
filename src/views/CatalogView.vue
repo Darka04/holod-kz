@@ -6,62 +6,46 @@
       <aside class="filters">
         <h3 class="filters__title">Фильтры</h3>
 
-        <!-- Категория -->
         <div class="filter-group">
           <h4>Категория</h4>
           <label v-for="cat in categories" :key="cat">
-            <input
-              type="checkbox"
-              :value="cat"
-              v-model="selectedCategories"
-            />
+            <input type="checkbox" :value="cat" v-model="selectedCategories" />
             {{ cat }}
           </label>
         </div>
 
-        <!-- Бренд -->
         <div class="filter-group">
           <h4>Бренд</h4>
           <label v-for="brand in brands" :key="brand">
-            <input
-              type="checkbox"
-              :value="brand"
-              v-model="selectedBrands"
-            />
+            <input type="checkbox" :value="brand" v-model="selectedBrands" />
             {{ brand }}
           </label>
         </div>
 
-        <!-- Цена -->
         <div class="filter-group">
           <h4>Цена (₸)</h4>
           <div class="price-inputs">
-            <input
-              type="number"
-              placeholder="От"
-              v-model.number="priceMin"
-            />
+            <input type="number" placeholder="От" v-model.number="priceMin" />
             <span>—</span>
-            <input
-              type="number"
-              placeholder="До"
-              v-model.number="priceMax"
-            />
+            <input type="number" placeholder="До" v-model.number="priceMax" />
           </div>
         </div>
 
-        <!-- Сбросить -->
-        <button class="btn-reset" @click="resetFilters">
-          Сбросить фильтры
-        </button>
+        <button class="btn-reset" @click="resetFilters">Сбросить фильтры</button>
       </aside>
 
       <!-- Товары -->
       <div class="catalog-main">
 
-        <!-- Шапка каталога -->
         <div class="catalog-header">
-          <h2>Каталог <span>({{ filteredProducts.length }})</span></h2>
+          <!-- ✅ Показываем поисковый запрос если есть -->
+          <h2>
+            <span v-if="storeSearchQuery">
+              Результаты поиска: «{{ storeSearchQuery }}»
+            </span>
+            <span v-else>Каталог</span>
+            <span class="count">({{ filteredProducts.length }})</span>
+          </h2>
           <select v-model="sortBy">
             <option value="default">По умолчанию</option>
             <option value="price-asc">Цена: по возрастанию</option>
@@ -70,7 +54,6 @@
           </select>
         </div>
 
-        <!-- Сетка товаров -->
         <div v-if="filteredProducts.length" class="products-grid">
           <ProductCard
             v-for="product in filteredProducts"
@@ -79,7 +62,6 @@
           />
         </div>
 
-        <!-- Пусто -->
         <div v-else class="catalog-empty">
           <p>😔 Товары не найдены. Попробуйте изменить фильтры.</p>
           <button class="btn-reset" @click="resetFilters">Сбросить фильтры</button>
@@ -92,7 +74,7 @@
 
 <script>
 import ProductCard from '../components/ProductCard.vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'CatalogView',
@@ -107,7 +89,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['allProducts']),
+    ...mapGetters(['allProducts', 'searchQuery']),
+    // ✅ Алиас чтобы не путаться с локальными данными
+    storeSearchQuery() {
+      return this.searchQuery
+    },
     categories() {
       return [...new Set(this.allProducts.map(p => p.category))]
     },
@@ -116,6 +102,16 @@ export default {
     },
     filteredProducts() {
       let result = [...this.allProducts]
+
+      // ✅ Фильтр по поисковому запросу из шапки
+      if (this.storeSearchQuery) {
+        const q = this.storeSearchQuery.toLowerCase()
+        result = result.filter(p =>
+          p.name.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q)
+        )
+      }
 
       if (this.selectedCategories.length) {
         result = result.filter(p => this.selectedCategories.includes(p.category))
@@ -145,12 +141,15 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['setSearchQuery']),
     resetFilters() {
       this.selectedCategories = []
       this.selectedBrands = []
       this.priceMin = null
       this.priceMax = null
       this.sortBy = 'default'
+      // ✅ Сбрасываем и поисковый запрос в store
+      this.setSearchQuery('')
     }
   }
 }
@@ -168,7 +167,6 @@ export default {
   align-items: start;
 }
 
-/* Фильтры */
 .filters {
   background: var(--color-white);
   border-radius: var(--border-radius);
@@ -246,7 +244,6 @@ export default {
   color: white;
 }
 
-/* Каталог */
 .catalog-header {
   display: flex;
   justify-content: space-between;
@@ -259,10 +256,11 @@ export default {
   font-weight: 700;
 }
 
-.catalog-header h2 span {
+.catalog-header h2 .count {
   color: var(--color-text-secondary);
   font-size: var(--font-size-base);
   font-weight: 400;
+  margin-left: 4px;
 }
 
 .catalog-header select {
