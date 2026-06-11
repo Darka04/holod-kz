@@ -1,2 +1,0 @@
-"use strict";(self["webpackChunkholod_kz"]=self["webpackChunkholod_kz"]||[]).push([[594],{5978:function(n,u,t){t.r(u),t.d(u,{default:function(){return l}});var a=t(6768);const e={class:"about"};function o(n,u){return(0,a.uX)(),(0,a.CE)("div",e,[...u[0]||(u[0]=[(0,a.Lk)("h1",null,"This is an about page",-1)])])}var r=t(1241);const s={},c=(0,r.A)(s,[["render",o]]);var l=c}}]);
-//# sourceMappingURL=about.0577389c.js.map
