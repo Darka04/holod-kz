@@ -27,10 +27,20 @@ const routes = [
     name: 'login',
     component: () => import('../views/LoginView.vue')
   },
+
+  // ✅ Защищённый роут /admin
   {
     path: '/admin',
     name: 'admin',
-    component: () => import('../views/AdminView.vue')
+    component: () => import('../views/AdminView.vue'),
+    beforeEnter: (to, from, next) => {
+      const user = JSON.parse(localStorage.getItem('holod_user'))
+      if (user) {
+        next()
+      } else {
+        next('/login')
+      }
+    }
   }
 ]
 
